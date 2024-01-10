@@ -38,4 +38,4 @@ jobs:
       - name: Archive
         uses: actions/upload-artifact@v3
         with:
-          path: build_win32_x64/Release/
+          path: build/Release
