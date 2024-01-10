@@ -4,10 +4,6 @@
 name: Node.js Package prebuild and publish
 
 on:
-  push:
-    branches:
-      - 'master'
-
   workflow_dispatch:
     inputs:
       logLevel:
@@ -20,7 +16,7 @@ on:
         type: string
 
 jobs:
-# version check
+  # version check
   version-check:
     runs-on: ubuntu-latest
     outputs:
@@ -44,7 +40,7 @@ jobs:
         id: check
         uses: EndBug/version-check@v2
         with:
-         diff-search: true
+          diff-search: true
 
       - name: Log when changed
         if: steps.check.outputs.changed == 'true'
@@ -56,7 +52,7 @@ jobs:
     needs: version-check
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-latest ]
+        os: [ubuntu-20.04, windows-2019, macos-latest]
         arch: [x64]
         include:
           - arch: ia32
@@ -68,11 +64,11 @@ jobs:
       contents: write
       packages: write
     steps:
-     - name: Install missing software for Windows
-       if: runner.os == 'Windows'
-       run: choco install nasm -yv
-     - name: Debug CI/CD pipeline
-       run: |
+      - name: Install missing software for Windows
+        if: runner.os == 'Windows'
+        run: choco install nasm -yv
+      - name: Debug CI/CD pipeline
+        run: |
           echo ${{matrix.arch}}
           echo ${{matrix.os}}
           echo ${{matrix.arch == 'arm64'}}
@@ -80,58 +76,58 @@ jobs:
           echo ${{ matrix.arch == 'arm64' && matrix.os == 'macos-latest' }}
           echo ${{matrix.arch == 'x64'}}
           echo ${{ matrix.arch == 'x64' && matrix.os == 'macos-latest' }}
-     - name: Checkout code
-       uses: actions/checkout@v3
-       with:
-        submodules: recursive
-     - uses: actions/setup-node@v3
-       with:
-         node-version: 18
-         registry-url: https://npm.pkg.github.com/
-     - name: Install
-       if: needs.version-check.outputs.changed == 'true'
-       run: npm ci --ignore-scripts=true
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: https://npm.pkg.github.com/
+      - name: Install
+        if: needs.version-check.outputs.changed == 'true'
+        run: npm ci --ignore-scripts=true
 
-     - name: Prebuild
-       if: needs.version-check.outputs.changed == 'true'
-       env:
-         BUILDARCH: ${{ matrix.arch }}
-         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-       run: npm run prebuild
+      - name: Prebuild
+        if: needs.version-check.outputs.changed == 'true'
+        env:
+          BUILDARCH: ${{ matrix.arch }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run prebuild
 
-# code is not ready... if anyone needs it, I am open for PR
-#  prebuild-cross:
-#    needs: version-check
-#    strategy:
-#      matrix:
-#        arch: [x64]
-#    runs-on: ubuntu-latest
-#    permissions:
-#      contents: read
-#      packages: write
-#    steps:
-#     - name: Checkout code
-#        uses: actions/checkout@v2
-#        with:
-#          submodules: recursive
-#
-#      - uses: actions/setup-node@v2
-#        with:
-#          node-version: 16
-#          registry-url: https://npm.pkg.github.com/
-#
-#      - name: Install
-#        if: needs.version-check.outputs.changed == 'true'
-#        run: npm ci --ignore-scripts=true
-#
-#      - name: Prebuild
-#        if: needs.version-check.outputs.changed == 'true'
-#        env:
-#          BUILDARCH: ${{ matrix.arch }}
-#          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        run:  docker run --rm -v ${PWD}:/app -e BUILDARCH=${{ matrix.arch }} -e GH_TOKEN= ${{ secrets.GITHUB_TOKEN }} ghcr.io/prebuild/linux-${{ matrix.arch }} node build.js prebuild
+  # code is not ready... if anyone needs it, I am open for PR
+  #  prebuild-cross:
+  #    needs: version-check
+  #    strategy:
+  #      matrix:
+  #        arch: [x64]
+  #    runs-on: ubuntu-latest
+  #    permissions:
+  #      contents: read
+  #      packages: write
+  #    steps:
+  #     - name: Checkout code
+  #        uses: actions/checkout@v2
+  #        with:
+  #          submodules: recursive
+  #
+  #      - uses: actions/setup-node@v2
+  #        with:
+  #          node-version: 16
+  #          registry-url: https://npm.pkg.github.com/
+  #
+  #      - name: Install
+  #        if: needs.version-check.outputs.changed == 'true'
+  #        run: npm ci --ignore-scripts=true
+  #
+  #      - name: Prebuild
+  #        if: needs.version-check.outputs.changed == 'true'
+  #        env:
+  #          BUILDARCH: ${{ matrix.arch }}
+  #          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #        run:  docker run --rm -v ${PWD}:/app -e BUILDARCH=${{ matrix.arch }} -e GH_TOKEN= ${{ secrets.GITHUB_TOKEN }} ghcr.io/prebuild/linux-${{ matrix.arch }} node build.js prebuild
 
-# steps for github
+  # steps for github
   publish-gpr:
     needs: [version-check, prebuild]
     runs-on: ubuntu-latest
@@ -177,7 +173,7 @@ jobs:
         if: ${{ needs.version-check.outputs.changed == 'true' && github.ref == 'refs/heads/next' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-# steps for npm
+  # steps for npm
   publish-npm:
     needs: [version-check, prebuild]
     runs-on: ubuntu-latest
@@ -223,4 +219,3 @@ jobs:
         if: ${{ needs.version-check.outputs.changed == 'true' && github.ref == 'refs/heads/next' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-

@@ -4,10 +4,6 @@ name: Third party lib tester
 
 # Controls when the workflow will run
 on:
-
-  schedule:
-    - cron: '20 0 * * 6'  # saturday at midnight
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -25,27 +21,23 @@ jobs:
         with:
           submodules: recursive
           ref: master
-          
+
       - name: Git Submodule Update Boring SSL
-        run:
-          git submodule update --remote transports/http3-quiche/third_party/boringssl/src
-      
+        run: git submodule update --remote transports/http3-quiche/third_party/boringssl/src
+
       - name: Git Submodule Update quiche
-        run:
-          git submodule update --remote transports/http3-quiche/third_party/quiche
+        run: git submodule update --remote transports/http3-quiche/third_party/quiche
 
       - name: Git Submodule Update zlib
-        run:
-          git submodule update --remote transports/http3-quiche/third_party/zlib
-          
+        run: git submodule update --remote transports/http3-quiche/third_party/zlib
+
       - name: Git Submodule Update googleurl
-        run:
-          git submodule update --remote transports/http3-quiche/third_party/googleurl
-          
+        run: git submodule update --remote transports/http3-quiche/third_party/googleurl
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
           branch: thirdpartylibtracker
           delete-branch: true
-          title: "Automated update of thirdparty libraries"
-          body: "Automated changes by thirdparty libraries tracker GitHub action"
+          title: 'Automated update of thirdparty libraries'
+          body: 'Automated changes by thirdparty libraries tracker GitHub action'

@@ -4,12 +4,6 @@ name: Windows Automated build and client/server unit tests
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -39,24 +33,24 @@ jobs:
         run: npm install --ignore-scripts
 
       - name: Build library
-        run: npm run dobuild 
+        run: npm run dobuild
 
       - name: Run node unit tests
         run: |
           $env:NODE_ENV="production"
-          npm run test:node  
+          npm run test:node
 
       - name: Run old unit tests
         run: |
           $env:NODE_ENV="production"
-          npm run oldtest  
+          npm run oldtest
 
       - name: Run node unit tests http2
         run: |
           $env:NODE_ENV="production"
-          npm run test:node:http2  
+          npm run test:node:http2
 
       - name: Run old unit tests http2
         run: |
           $env:NODE_ENV="production"
-          npm run oldtesthttp2  
+          npm run oldtesthttp2
