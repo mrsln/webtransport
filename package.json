@@ -43,5 +43,10 @@
   "workspaces": [
     "transports/*",
     "main"
-  ]
+  ],
+  "cmake-js": {
+    "runtime": "electron",
+    "runtimeVersion": "25.4.0",
+    "arch": "x64"
+  }
 }
